@@ -1,0 +1,12 @@
+a revoir en Moodle 2.0 
+erreur dans install.xml
+
+STATEMENTS section is not supported any more, please use db/install.php or db/log.php
+
+    * line 128 of /lib/xmldb/xmldb_file.php: call to debugging()
+    * line 385 of /lib/ddl/database_manager.php: call to xmldb_file->loadXMLStructure()
+    * line 406 of /lib/ddl/database_manager.php: call to database_manager->load_xmldb_file()
+    * line 457 of /lib/upgradelib.php: call to database_manager->install_from_xmldb_file()
+    * line 265 of /lib/upgradelib.php: call to upgrade_plugins_modules()
+    * line 1352 of /lib/upgradelib.php: call to upgrade_plugins()
+    * line 302 of /admin/index.php: call to upgrade_noncore()

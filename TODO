@@ -1,0 +1,19 @@
+mettre a jour c2iws avec nouvelle version (appel est_inscrit et a_passe
+
+export resultats ODT, XLS et TXT fait
+
+ajout dates à C2Iexamen FAIT  tester xmldb OK 
+
+gestion des groupements pour synchro auto
+   Ok en création de comptes
+   Ok notes
+   reste les résultats FAIT
+   petit bug avec pagesize et 99 pas retrouvé
+
+resultats : tri a implementer FAIT
+   afficher nombre de resultats FAIT
+
+web service creecandidat
+  ajouter un champ input passwordmd5 pour synchron Moodle
+  et modifier cree_candidat pb si le mdp est en md5 il faut changer l'authentification 
+  fait a tester avec compte manuel Moodle

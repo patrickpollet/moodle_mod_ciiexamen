@@ -38,32 +38,26 @@ $download = optional_param('download', '', PARAM_ALPHA);
 
 if ($id) {
     if (!$cm = get_coursemodule_from_id('ciiexamen', $id)) {
-        error('Course Module ID was incorrect');
+        print_error('invalidcoursemodule');
     }
-
-    if (!$course = ws_get_record('course', 'id', $cm->course)) {
-        error('Course is misconfigured');
+    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+        print_error('coursemisconf');
     }
-
-    if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $cm->instance)) {
-        error('Course module is incorrect');
-    }
-
-} else
-    if ($a) {
-        if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $a)) {
-            error('Course module is incorrect');
+ if (! $ciiexamen = $DB->get_record("ciiexamen", array("id" => $cm->instance))) {
+            print_error('invalidciiexamenid', 'ciiexamen');
         }
-        if (!$course = ws_get_record('course', 'id', $ciiexamen->course)) {
-            error('Course is misconfigured');
-        }
-        if (!$cm = get_coursemodule_from_instance('ciiexamen', $ciiexamen->id, $course->id)) {
-            error('Course Module ID was incorrect');
-        }
-
-    } else {
-        error('You must specify a course_module ID or an instance ID');
+    
+} else {
+    if (!$ciiexamen = $DB->get_record('ciiexamen', array('id' => $a))) {
+        print_error('invalidquizid', 'quiz');
     }
+    if (!$course = $DB->get_record('course', array('id' => $ciiexamen->course))) {
+        print_error('invalidcourseid');
+    }
+    if (!$cm = get_coursemodule_from_instance("ciiexamen", $ciiexamen->id, $course->id)) {
+        print_error('invalidcoursemodule');
+    }
+}
 
 require_login($course, true, $cm);
 
@@ -300,198 +294,8 @@ if ($download) {
     $strpreview = get_string('voir_details', 'ciiexamen');
 
 
-//Moodle 1.9
-if (!$CFG->wspp_using_moodle20) {
-
-    /// Print the page header
-
-    $navlinks = array ();
-    $navlinks[] = array (
-        'name' => $strciiexamens,
-        'link' => "index.php?id=$course->id",
-        'type' => 'activity'
-    );
-    $navlinks[] = array (
-        'name' => format_string($ciiexamen->name),
-        'link' => '',
-        'type' => 'activityinstance'
-    );
-
-    $navigation = build_navigation($navlinks);
-
-    print_header_simple(format_string($ciiexamen->name), '', $navigation, '', '', true, update_module_button($cm->id, $course->id, $strciiexamen), navmenu($course, $cm));
-
-    /// Print the main part of the page
-
-    print_heading(format_string($ciiexamen->name));
-
-    print_container_start();
-    /// Check to see if groups are being used here
-
-    $returnurl = $CFG->wwwroot . '/mod/ciiexamen/viewresultats.php?a=' . $ciiexamen->id . '&amp;';
-    groups_print_activity_menu($cm, $returnurl);
-
-    print "<div class='clearer'> </div>";
-
-    /// Print the tabs
 
 
-    include ('tabs.php');
-
-    $tabledroite = array ();
-    /// Define a table showing a list of users in the current role selection
-
-    $tablecolumns = array (
-        'userpic',
-        'fullname'
-    );
-
-    $tableheaders = array (
-        get_string('userpic'),
-        get_string('fullname')
-    );
-    $tablecolumns[] = 'username';
-    $tableheaders[] = ' Login';
-
-    $tablecolumns[] = 'idnumber';
-    $tableheaders[] = ' No Etudiant';
-
-    $tablecolumns[] = 'score';
-    $tableheaders[] = get_string('score_global', 'ciiexamen');
-
-    $tabledroite[] = 'score';
-
-    if ($res2)
-        foreach ($res2[0]->details as $col) {
-            $tablecolumns[] = $col->competence;
-            $tableheaders[] = $col->competence;
-            $tabledroite[] = $col->competence;
-        }
-
-    $tablecolumns[] = 'date';
-    $tableheaders[] = get_string('date_passage', 'ciiexamen');
-
-    $tablecolumns[] = 'ip';
-    $tableheaders[] = get_string('ip', 'ciiexamen');
-    $tablecolumns[] = 'origine';
-    $tableheaders[] = get_string('origine', 'ciiexamen');
-
-    $table = new flexible_table('ciiexamen-resultats-' . $course->id);
-
-    $table->define_columns($tablecolumns);
-    $table->define_headers($tableheaders);
-    $table->define_baseurl($returnurl);
-
-    $table->sortable(true, 'fullname', SORT_ASC);
-
-    $table->set_attribute('cellspacing', '0');
-    $table->set_attribute('id', 'participants');
-    $table->set_attribute('class', 'generaltable generalbox');
-
-    $table->set_attribute('width', '99%'); //PP
-
-    $table->set_control_variables(array (
-        TABLE_VAR_SORT => 'ssort',
-        TABLE_VAR_HIDE => 'shide',
-        TABLE_VAR_SHOW => 'sshow',
-        TABLE_VAR_IFIRST => 'sifirst',
-        TABLE_VAR_ILAST => 'silast',
-        TABLE_VAR_PAGE => 'spage'
-    ));
-
-    $table->setup();
-
-    //colonnes devant être alignées à droite
-    foreach ($tabledroite as $num)
-        $table->column_style($num, "text-align", "right");
-    //print ($currentgroup);
-
-    $table->pagesize($perpage, $nbfiltres);
-
-    $min = $table->get_page_start(); //$page*$perpage;
-    $max = $table->get_page_start() + $table->get_page_size(); // ($page+1)*$perpage;
-    $i = -1;
-
-    $arrondi = 1;
-
-    unset ($res);
-    $res = applique_tri($res2, $table->get_sql_sort());
-
-    print_heading("$nbfiltres / $nbtotal " . get_string('nb_resultats', 'ciiexamen'));
-
-    //print "$min $max";
-    foreach ($res as $r) {
-
-        $user = $r->user;
-        if (!isset ($user->context)) {
-            $usercontext = get_context_instance(CONTEXT_USER, $user->id);
-        } else {
-            $usercontext = $user->context;
-        }
-
-        if ($piclink = ($USER->id == $user->id || has_capability('moodle/user:viewdetails', $context) || has_capability('moodle/user:viewdetails', $usercontext))) {
-            $profilelink = '<strong><a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></strong>';
-        } else {
-            $profilelink = '<strong>' . fullname($user) . '</strong>';
-        }
-
-        $data = array (
-            print_user_picture($user, $course->id, $user->picture, false, true, $piclink),
-            $profilelink
-        );
-
-        $i++;
-        if ($i < $min)
-            continue;
-        if ($i >= $max)
-            break;
-
-        $data[] = $r->login;
-        $data[] = $r->numetudiant ? $r->numetudiant : '';
-
-        $link = link_to_popup_window("/mod/ciiexamen/rapport.php?id={$cm->id}&amp;userid={$user->id}",
-               'voir_resultats', "<img src=\"$CFG->pixpath/t/preview.gif\" class=\"iconsmall\" alt=\"$strpreview\" />",
-                0, 0, $strpreview, CIIEXAMEN_POPUP_OPTIONS, true);
-
-        $data[] = $link . " " . sprintf("%.{$arrondi}f", $r->score) . "%";
-
-        foreach ($r->details as $s)
-            $data[] = sprintf("%.{$arrondi}f", $s->score) . "%";
-
-        $data[] = userdate($r->date);
-        $data[] = $r->ip;
-        $data[] = $r->origine;
-
-        $table->add_data($data);
-
-    }
-    $table->print_html();
-
-    //now give links for downloading spreadsheets.
-    if (!empty ($res) && has_capability('mod/choice:downloadresponses', $context)) {
-        echo "<br />\n";
-        echo "<table class=\"downloadreport\"><tr>\n";
-        echo "<td>";
-        $options = array ();
-        $options["id"] = "$cm->id";
-        $options["download"] = "ods";
-        print_single_button("viewresultats.php", $options, get_string("downloadods"));
-        echo "</td><td>";
-        $options["download"] = "xls";
-        print_single_button("viewresultats.php", $options, get_string("downloadexcel"));
-        echo "</td><td>";
-        $options["download"] = "txt";
-        print_single_button("viewresultats.php", $options, get_string("downloadtext"));
-
-        echo "</td></tr></table>";
-    }
-
-    /// Finish the page
-    print_container_end();
-    print_footer($course);
-}
-//Moodle 2.0
-else {
 
     /// Initialize $PAGE, compute blocks
     $PAGE->set_url('/mod/ciiexamen/viewresultats.php', array (
@@ -679,10 +483,10 @@ else {
 
     echo $OUTPUT->footer();
 
-}
 
 
 function filtre_donnees(& $res, $context, $cm, $currentgroup) {
+    global $DB;
     $ret = array ();
     if (empty ($res))
         return $ret;
@@ -692,7 +496,7 @@ function filtre_donnees(& $res, $context, $cm, $currentgroup) {
         if (!empty($r->error) || empty ($r->login))
             continue;
 
-        if ($user = ws_get_record('user', 'username', $r->login, 'deleted', 0, '', '', 'id,username,lastname,firstname,picture,idnumber,imagealt,email')) {
+        if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0), 'id,username,lastname,firstname,picture,idnumber,imagealt,email')) {
 
             //virer les non inscrits au cours
             if (!has_capability('mod/quiz:view', $context, $user->id)) {

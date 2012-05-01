@@ -18,7 +18,6 @@
 
 /// (replace ciiexamen with the name of your module and delete this line)
 
-require_once (dirname(__FILE__) . '/wslib.php');
 /// CONSTANTS ///////////////////////////////////////////////////////////
 
 define('WS_PROTOCOL_SOAP', 1);
@@ -47,13 +46,14 @@ function ciiexamen_get_protocols() {
  * @return int The id of the newly inserted ciiexamen record
  */
 function ciiexamen_add_instance($ciiexamen) {
+    global $DB;
 
     $ciiexamen->timecreated = time();
     $ciiexamen->grade = 100; //fixed
 
     # You may have to add extra stuff in here #
 
-    if (!$ciiexamen->id = ws_insert_record('ciiexamen', $ciiexamen))
+    if (!$ciiexamen->id = $DB->insert_record('ciiexamen', $ciiexamen))
         return false;
 
     // Do the processing required after an add or an update.
@@ -71,13 +71,14 @@ function ciiexamen_add_instance($ciiexamen) {
  * @return boolean Success/Fail
  */
 function ciiexamen_update_instance($ciiexamen) {
+    global $DB;
 
     $ciiexamen->timemodified = time();
     $ciiexamen->id = $ciiexamen->instance;
 
     # You may have to add extra stuff in here #
 
-    if (!ws_update_record('ciiexamen', $ciiexamen))
+    if (!$DB->update_record('ciiexamen', $ciiexamen))
         return false;
     // Do the processing required after an add or an update.
     ciiexamen_after_add_or_update($ciiexamen);
@@ -93,17 +94,19 @@ function ciiexamen_update_instance($ciiexamen) {
  * @return boolean Success/Failure
  */
 function ciiexamen_delete_instance($id) {
+    global $DB;
 
-    if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $id)) {
+ if (!$ciiexamen = $DB->get_record('ciiexamen', array('id'=>$id))) {
         return false;
     }
-
+ 
     # Delete any dependent records here #
+  if (!$DB->delete_records('ciiexamen', array('id'=>$ciiexamen->id))) {
+        $result = false;
+    }
+  
 
-    if (!ws_delete_records('ciiexamen', 'id', $ciiexamen->id))
-        return false;
-
-    ws_delete_records('event', 'modulename', 'ciiexamen', 'instance', $ciiexamen->id);
+    $DB->delete_records('event', array('modulename'=>'ciiexamen', 'instance'=>$ciiexamen->id));
     ciiexamen_grade_item_delete($ciiexamen);
 
     return true;
@@ -154,12 +157,12 @@ function ciiexamen_user_complete($course, $user, $mod, $ciiexamen) {
  * Appelée par le rapport d'activité recent du cours
  */
 function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
-    global $CFG, $COURSE, $USER;
+    global $DB, $CFG, $COURSE, $USER;
 
     if ($COURSE->id == $courseid) {
         $course = $COURSE;
     } else {
-        $course = ws_get_record('course', 'id', $courseid);
+        $course = $DB->get_record('course', array('id'=>$courseid));
     }
 
     $modinfo = & get_fast_modinfo($course);
@@ -167,7 +170,7 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
     $cm = $modinfo->cms[$cmid];
 
     //retrouver le code national de l'examen via son id d'instance recu de Moodle
-    if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $cm->instance))
+    if (!$ciiexamen = $DB->get_record('ciiexamen', array('id'=> $cm->instance)))
         return;
 
     $attempts = null;
@@ -199,7 +202,7 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
     $aname = format_string($cm->name, true);
     foreach ($attempts as $attempt) {
         //connu de Moodle ?
-        if (!$user = ws_get_record('user', 'username', $attempt->login))
+        if (!$user = $DB->get_record('user', array('username'=>$attempt->login)))
             continue;
 
         //moodle demande pour un utilisateur
@@ -231,7 +234,7 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
             }
         }
 
-        $tmpactivity = new object();
+        $tmpactivity = new stdClass();
 
         $tmpactivity->type = 'ciiexamen';
         $tmpactivity->cmid = $cm->id;
@@ -334,7 +337,7 @@ function ciiexamen_get_post_actions() {
  * @todo Finish documenting this function
  **/
 function ciiexamen_cron() {
-    global $CFG;
+    global $CFG,$DB;
     require_once (dirname(__FILE__) . '/locallib.php');
 
     /*pour toutes les instances
@@ -344,14 +347,11 @@ function ciiexamen_cron() {
      *           inscrire examen si nécessaire
      */
     //champs a envoyer à la PF
-    if ($CFG->wspp_using_moodle20)
-        $fields = 'u.id, u.username,u.idnumber,u.firstname, u.lastname, u.email,u.auth, u.password';
-    else
-        $fields = 'u.id, u.username,u.idnumber,u.firstname, u.lastname, u.email,u.auth, u.password,ra.hidden';
 
+    $fields = 'u.id, u.username,u.idnumber,u.firstname, u.lastname, u.email,u.auth, u.password';
     $roleid = 5; //students  TODO get it from database
     mtrace("traitement des ciiexamens");
-    $instances = ws_get_records('ciiexamen');
+    $instances = $DB->get_records('ciiexamen');
     foreach ($instances as $instance) {
         mtrace("traitement de examen " . $instance->id_examen);
 
@@ -415,17 +415,11 @@ function ciiexamen_cron() {
                 //mtrace(print_r($inscritslogins,true));
 
                 //hidden roles do not exists anymore in Moodle 2.0
-                if (!$CFG->wspp_using_moodle20) {
-                    foreach ($contextusers as $id => $user) {
-                        if (@ $user->hidden || !empty ($inscritslogins[$user->username]))
-                            unset ($contextusers[$id]);
-                    }
-                } else {
-                    foreach ($contextusers as $id => $user) {
+                 foreach ($contextusers as $id => $user) {
                         if (!empty ($inscritslogins[$user->username]))
                             unset ($contextusers[$id]);
                     }
-                }
+      
 
                 mtrace(count($contextusers) . " a inscrire sur la PF");
 
@@ -514,9 +508,10 @@ function ciiexamen_cron() {
  * fonction utilisée par les backups apparemment
  */
 function ciiexamen_get_participants($ciiexamenid) {
+    global $DB;
 
     // rev 297 (avaait oublié de rechercher l'id national !)
-    if (!$ciiexamen = ws_get_record('ciiexamen', 'id', intval($ciiexamenid)))
+    if (!$ciiexamen = $DB->get_record('ciiexamen', 'id', intval($ciiexamenid)))
         return false;
 
     //liste inscrits sur la PF a cet examen
@@ -525,7 +520,7 @@ function ciiexamen_get_participants($ciiexamenid) {
     $ret = array ();
     foreach ($inscrits as $inscrit) {
         //pour chacun, si connu de Moodle ajouter
-        if ($user = ws_get_record('user', 'username', $inscrit->login))
+        if ($user = $DB->get_record('user', array('username'=> $inscrit->login)))
             $ret[$user->id] = $user;
     }
     return $ret;
@@ -598,9 +593,10 @@ function ciiexamen_uninstall() {
  **/
 
 function ciiexamen_grades($ciiexamenid) {
+    global $DB;
     /// Must return an array of grades, indexed by user, and a max grade.
 
-    $ciiexamen = get_record('ciiexamen', 'id', intval($ciiexamenid));
+    $ciiexamen = $DB->get_record('ciiexamen', array('id'=> intval($ciiexamenid)));
     if (empty ($ciiexamen) || empty ($ciiexamen->grade)) {
         return NULL;
     }
@@ -613,7 +609,7 @@ function ciiexamen_grades($ciiexamenid) {
 
     foreach ($res as $r) {
         //existe bien dans Moodle
-        if ($user = ws_get_record('user', 'username', $r->login, 'deleted', 0)) {
+        if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0))) {
             $ret = new StdClass();
             $ret->userid = $user->id;
             $ret->rawgrade = $r->score;
@@ -639,20 +635,7 @@ function ciiexamen_grades($ciiexamenid) {
  * @return array array of grades, false if none
  */
 function ciiexamen_get_user_grades($ciiexamen, $userid = 0) {
-    global $CFG;
-    //print "appel ".__FUNCTION__;
-    /*
-        $user = $userid ? "AND u.id = $userid" : "";
-
-        $sql = "SELECT u.id, u.id AS userid, g.grade AS rawgrade, g.timemodified AS dategraded, MAX(a.timefinish) AS datesubmitted
-                FROM {$CFG->prefix}user u, {$CFG->prefix}quiz_grades g, {$CFG->prefix}quiz_attempts a
-                WHERE u.id = g.userid AND g.quiz = {$quiz->id} AND a.quiz = g.quiz AND u.id = a.userid
-                      $user
-                GROUP BY u.id, g.grade, g.timemodified";
-
-        return get_records_sql($sql);
-     */
-
+    global $CFG,$DB;
     if (!$userid) {
         $res = c2i_getresultats($ciiexamen->id_examen);
         // print_r($res);
@@ -666,7 +649,7 @@ function ciiexamen_get_user_grades($ciiexamen, $userid = 0) {
 
         foreach ($res as $r) {
             //existe bien dans Moodle
-            if ($user = ws_get_record('user', 'username', $r->login, 'deleted', 0)) {
+            if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0))) {
                 //filtrer le groupement ....
                 //if ($cm->groupmembersonly)
                 //	if (! groups_has_membership($cm,$user->id))
@@ -687,7 +670,7 @@ function ciiexamen_get_user_grades($ciiexamen, $userid = 0) {
         return $rets; //tableau indicé par les ids Moodle
 
     } else {
-        if (!$user = get_record('user', 'id', $userid))
+        if (!$user = $DB->get_record('user', array('id'=> $userid)))
             return false;
         $res = c2i_getscores($user->username, $ciiexamen->id_examen);
         if (!$res || $res->error)
@@ -712,7 +695,7 @@ function ciiexamen_get_user_grades($ciiexamen, $userid = 0) {
  * @param int $userid specific user only, 0 mean all
  */
 function ciiexamen_update_grades($ciiexamen = null, $userid = 0, $nullifnone = true) {
-    global $CFG;
+    global $CFG, $DB;
     // print "appel ".__FUNCTION__;
     if (!function_exists('grade_update')) { //workaround for buggy PHP versions
         if (file_exists($CFG->libdir . '/gradelib.php')) {
@@ -728,7 +711,7 @@ function ciiexamen_update_grades($ciiexamen = null, $userid = 0, $nullifnone = t
 
         } else
             if ($userid and $nullifnone) {
-                $grade = new object();
+                $grade = new stdClass();
                 $grade->userid = $userid;
                 $grade->rawgrade = NULL;
                 ciiexamen_grade_item_update($ciiexamen, $grade);
@@ -741,7 +724,7 @@ function ciiexamen_update_grades($ciiexamen = null, $userid = 0, $nullifnone = t
         $sql = "SELECT a.*, cm.idnumber as cmidnumber, a.course as courseid
                           FROM {$CFG->prefix}ciiexamen a, {$CFG->prefix}course_modules cm, {$CFG->prefix}modules m
                          WHERE m.name='ciiexamen' AND m.id=cm.module AND cm.instance=a.id";
-        if ($rs = get_recordset_sql($sql)) {
+        if ($rs = $DB->get_recordset_sql($sql)) {
             while ($ciiexamen = rs_fetch_next_record($rs)) {
                 if ($ciiexamen->grade != 0) {
                     ciiexamen_update_grades($ciiexamen, 0, false);
@@ -796,56 +779,12 @@ function ciiexamen_grade_item_update($ciiexamen, $grades = NULL) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     }
 
-    /* description by TJ:
-    1/ If the ciiexamen is set to not show scores while the ciiexamen is still open, and is set to show scores after
-       the ciiexamen is closed, then create the grade_item with a show-after date that is the ciiexamen close date.
-    2/ If the ciiexamen is set to not show scores at either of those times, create the grade_item as hidden.
-    3/ If the ciiexamen is set to show scores, create the grade_item visible.
-    */
-    /*
-        if (!($ciiexamen->review & ciiexamen_REVIEW_SCORES & ciiexamen_REVIEW_CLOSED)
-        and !($ciiexamen->review & ciiexamen_REVIEW_SCORES & ciiexamen_REVIEW_OPEN)) {
-            $params['hidden'] = 1;
-
-        } else if ( ($ciiexamen->review & ciiexamen_REVIEW_SCORES & ciiexamen_REVIEW_CLOSED)
-               and !($ciiexamen->review & ciiexamen_REVIEW_SCORES & ciiexamen_REVIEW_OPEN)) {
-            if ($ciiexamen->timeclose) {
-                $params['hidden'] = $ciiexamen->timeclose;
-            } else {
-                $params['hidden'] = 1;
-            }
-
-        } else {
-            // a) both open and closed enabled
-            // b) open enabled, closed disabled - we can not "hide after", grades are kept visible even after closing
-            $params['hidden'] = 0;
-        }
-    */
+ 
     if ($grades === 'reset') {
         $params['reset'] = true;
         $grades = NULL;
     }
-    /*
-        $gradebook_grades = grade_get_grades($ciiexamen->course, 'mod', 'ciiexamenid', $ciiexamen->id);
-        $grade_item = $gradebook_grades->items[0];
-        if ($grade_item->locked) {
-            $confirm_regrade = optional_param('confirm_regrade', 0, PARAM_INT);
-            if (!$confirm_regrade) {
-                $message = get_string('gradeitemislocked', 'grades');
-                $back_link = $CFG->wwwroot . '/mod/ciiexamen/report.php?q=' . $ciiexamen->id . '&amp;mode=overview';
-                $regrade_link = qualified_me() . '&amp;confirm_regrade=1';
-                print_box_start('generalbox', 'notice');
-                echo '<p>'. $message .'</p>';
-                echo '<div class="buttons">';
-                print_single_button($regrade_link, null, get_string('regradeanyway', 'grades'), 'post', $CFG->framename);
-                print_single_button($back_link,  null,  get_string('cancel'),  'post',  $CFG->framename);
-                echo '</div>';
-                print_box_end();
-
-                return GRADE_UPDATE_ITEM_LOCKED;
-            }
-        }
-    */
+ 
     return grade_update('mod/ciiexamen', $ciiexamen->course, 'mod', 'ciiexamen', $ciiexamen->id, 0, $grades, $params);
 }
 
@@ -876,13 +815,13 @@ function ciiexamen_grade_item_delete($ciiexamen) {
  * @param string optional type
  */
 function ciiexamen_reset_gradebook($courseid, $type = '') {
-    global $CFG;
+    global $CFG, $DB;
 
     $sql = "SELECT l.*, cm.idnumber as cmidnumber, l.course as courseid
                   FROM {$CFG->prefix}ciiexamen l, {$CFG->prefix}course_modules cm, {$CFG->prefix}modules m
                  WHERE m.name='ciiexamen' AND m.id=cm.module AND cm.instance=l.id AND l.course=$courseid";
 
-    if ($ciiexamens = get_records_sql($sql)) {
+    if ($ciiexamens = $DB->get_records_sql($sql)) {
         foreach ($ciiexamens as $ciiexamen) {
             ciiexamen_grade_item_update($ciiexamen, 'reset');
         }
@@ -923,13 +862,13 @@ function ciiexamen_reset_userdata($data) {
  * @param object $ciiexamen the ciiexamen object.
  */
 function ciiexamen_after_add_or_update($ciiexamen) {
-    global $CFG;
+    global $CFG, $DB;
 
     //calendrier
     if ($ciiexamen->timeopen) {
-        $event = new object();
+        $event = new stdClass();
 
-        if ($event->id = ws_get_field('event', 'id', 'modulename', 'ciiexamen', 'instance', $ciiexamen->id)) {
+        if ($event->id = $DB->get_field('event', 'id', array('modulename'=>'ciiexamen', 'instance'=> $ciiexamen->id))) {
 
             $event->name = $ciiexamen->name;
             $event->description = $ciiexamen->intro;
@@ -941,7 +880,7 @@ function ciiexamen_after_add_or_update($ciiexamen) {
 
             update_event($event);
         } else {
-            $event = new object();
+            $event = new StdClass();
             $event->name = $ciiexamen->name;
             $event->description = $ciiexamen->intro;
             $event->courseid = $ciiexamen->course;
@@ -957,16 +896,12 @@ function ciiexamen_after_add_or_update($ciiexamen) {
             add_event($event);
         }
     } else {
-        ws_delete_records('event', 'modulename', 'ciiexamen', 'instance', $ciiexamen->id);
+        $DB->delete_records('event', array('modulename'=>'ciiexamen', 'instance'=> $ciiexamen->id));
     }
 
     //update related grade item
-    if ($CFG->wspp_using_moodle20)
-        ciiexamen_grade_item_update($ciiexamen);
-
-    else
-        ciiexamen_grade_item_update(stripslashes_recursive($ciiexamen));
-
+     ciiexamen_grade_item_update($ciiexamen);
+    
 }
 
 function cii_examen_print_item_description($num, $label, $valeur) {
@@ -1072,7 +1007,7 @@ function ciiexamen_supports($feature) {
 }
 
 if (0) {
-    $ciiexamen = get_record('ciiexamen', 'id', 1);
+    $ciiexamen = $DB->get_record('ciiexamen', array('id'=> 1));
     print_r(ciiexamen_get_user_grades($ciiexamen));
 }
 ?>

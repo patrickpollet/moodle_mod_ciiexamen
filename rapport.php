@@ -24,147 +24,88 @@ $currenttab = optional_param("ct", "score", PARAM_TEXT);
 
 if ($id) {
     if (!$cm = get_coursemodule_from_id('ciiexamen', $id)) {
-        error('Course Module ID was incorrect');
+        print_error('invalidcoursemodule');
     }
-
-    if (!$course = ws_get_record('course', 'id', $cm->course)) {
-        error('Course is misconfigured');
+    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+        print_error('coursemisconf');
     }
-
-    if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $cm->instance)) {
-        error('Course module is incorrect');
-    }
-
-} else
-    if ($a) {
-        if (!$ciiexamen = ws_get_record('ciiexamen', 'id', $a)) {
-            error('Course module is incorrect');
+ if (! $ciiexamen = $DB->get_record("ciiexamen", array("id" => $cm->instance))) {
+            print_error('invalidciiexamenid', 'ciiexamen');
         }
-        if (!$course = ws_get_record('course', 'id', $ciiexamen->course)) {
-            error('Course is misconfigured');
-        }
-        if (!$cm = get_coursemodule_from_instance('ciiexamen', $ciiexamen->id, $course->id)) {
-            error('Course Module ID was incorrect');
-        }
-
-    } else {
-        error('You must specify a course_module ID or an instance ID');
+    
+} else {
+    if (!$ciiexamen = $DB->get_record('ciiexamen', array('id' => $a))) {
+        print_error('invalidquizid', 'quiz');
     }
+    if (!$course = $DB->get_record('course', array('id' => $ciiexamen->course))) {
+        print_error('invalidcourseid');
+    }
+    if (!$cm = get_coursemodule_from_instance("ciiexamen", $ciiexamen->id, $course->id)) {
+        print_error('invalidcoursemodule');
+    }
+}
 
 require_login($course, true, $cm);
 
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 require_capability('mod/quiz:viewreports', $context);
 
-if (!$user = ws_get_record('user', 'id', $userid))
-    error("No such user in this course");
 
+if (!$user = $DB->get_record('user', array('id' => $userid))) {
+    error("No such user in this course");
+}
 //accès web service pour récuperer les détails de l'examen '
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen))
-    print_error('err_examunknown', 'ciiexamen');
+print_error('err_examunknown', 'ciiexamen');
 
 add_to_log($course->id, "ciiexamen", "view", "rapport.php?id=$cm->id", "$ciiexamen->id");
 
 $ciiresultats = c2i_getscores($user->username, $ciiexamen->id_examen);
 
-//Moodle 1.9
-if (!$CFG->wspp_using_moodle20) {
-    /// Print the page header
-    $strciiexamens = get_string('modulenameplural', 'ciiexamen');
-    $strciiexamen = get_string('modulename', 'ciiexamen');
 
-    print_header_simple(format_string($ciiexamen->name));
-
-    /// Print the main part of the page
-
-    print_heading(format_string($ciiexamen->name));
-
-    print_container_start();
-    /// Check to see if groups are being used here
-
-    $returnurl = 'rapport.php?a=' . $ciiexamen->id . '&amp;userid=' . $userid;
-
-    print "<div class='clearer'> </div>";
-
-    /// Print the tabs
-
-    include ('tabs2.php');
-
-    switch ($currenttab) {
-
-        case 'score' :
-            print_heading(get_string('score_examen_pour', 'ciiexamen', fullname($user)));
-            if (!$ciiresultats->error)
-                print (c2i_getresultats_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-        case 'corrige' :
-            print_heading(get_string('corrige_examen_pour', 'ciiexamen', fullname($user)));
-            if ($ciidetails->correction || has_capability('mod/quiz:viewreports', $context))
-                print (c2i_getcorrige_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-        case 'parcours' :
-            print_heading(get_string('parcours_examen_pour', 'ciiexamen', fullname($user)));
-            print (c2i_getparcours_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-    }
-    echo '<div class="controls">';
-
-    // Print the close window button
-    echo '<input type="button" onclick="window.close()" value="' .
-    get_string('closepreview', 'quiz') . "\" />";
-    echo '</div>';
-
-    print_container_end();
-
-    print_footer($course);
-
-//Moodle 2.0
-} else {
-
-    /// Initialize $PAGE, compute blocks
-    $PAGE->set_url('/mod/ciiexamen/rapport.php', array (
+/// Initialize $PAGE, compute blocks
+$PAGE->set_url('/mod/ciiexamen/rapport.php', array (
         'id' => $cm->id,'userid'=>$userid
-    ));
-    $PAGE->set_pagelayout('popup');
-    $title =get_string('modulename','ciiexamen'). ' : ' . format_string($ciiexamen->name);
-   // $PAGE->set_context($context);  not needed with popup ... (so far)
-    $PAGE->set_title($title);
-    $PAGE->set_heading($title);
+));
+$PAGE->set_pagelayout('popup');
+$title =get_string('modulename','ciiexamen'). ' : ' . format_string($ciiexamen->name);
+// $PAGE->set_context($context);  not needed with popup ... (so far)
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
 
-    echo $OUTPUT->header();
-
-
-      // Print the close window button
-
-    echo '<input type="button" onclick="window.close()" value="' .
-     get_string('closewindow', 'ciiexamen') . "\" />";
-    /// Print the tabs
+echo $OUTPUT->header();
 
 
-    include ('tabs2.php');
-    switch ($currenttab) {
-       case 'score' :
-            echo $OUTPUT->heading(get_string('score_examen_pour', 'ciiexamen', fullname($user)));
-            if (!$ciiresultats->error)
-                print (c2i_getresultats_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-        case 'corrige' :
-            echo $OUTPUT->heading(get_string('corrige_examen_pour', 'ciiexamen', fullname($user)));
-            if ($ciidetails->correction || has_capability('mod/quiz:viewreports', $context))
-                print (c2i_getcorrige_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-        case 'parcours' :
-            echo $OUTPUT->heading(get_string('parcours_examen_pour', 'ciiexamen', fullname($user)));
-            print (c2i_getparcours_examen_html($user->username, $ciiexamen->id_examen));
-            break;
-    }
+// Print the close window button
 
-     // Print the close window button
+echo '<input type="button" onclick="window.close()" value="' .
+get_string('closewindow', 'ciiexamen') . "\" />";
+/// Print the tabs
 
-    echo '<input type="button" onclick="window.close()" value="' .
-     get_string('closewindow', 'ciiexamen') . "\" />";
 
-    echo $OUTPUT->footer();
-
+include ('tabs2.php');
+switch ($currenttab) {
+    case 'score' :
+        echo $OUTPUT->heading(get_string('score_examen_pour', 'ciiexamen', fullname($user)));
+        if (!$ciiresultats->error)
+        print (c2i_getresultats_examen_html($user->username, $ciiexamen->id_examen));
+        break;
+    case 'corrige' :
+        echo $OUTPUT->heading(get_string('corrige_examen_pour', 'ciiexamen', fullname($user)));
+        if ($ciidetails->correction || has_capability('mod/quiz:viewreports', $context))
+        print (c2i_getcorrige_examen_html($user->username, $ciiexamen->id_examen));
+        break;
+    case 'parcours' :
+        echo $OUTPUT->heading(get_string('parcours_examen_pour', 'ciiexamen', fullname($user)));
+        print (c2i_getparcours_examen_html($user->username, $ciiexamen->id_examen));
+        break;
 }
+
+// Print the close window button
+
+echo '<input type="button" onclick="window.close()" value="' .
+get_string('closewindow', 'ciiexamen') . "\" />";
+
+echo $OUTPUT->footer();
+
 ?>

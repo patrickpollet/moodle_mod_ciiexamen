@@ -6,7 +6,18 @@
  * @package c2ipf
  */
 
+ /**
+     *  log all DB errors specific to new Moodle 2.0 API
+     */
 
+    function ws_error_log($ex) {
+        global $CFG;
+        if (is_object($ex)) {
+            $info = $ex->getMessage() . '\n' . $ex->getTraceAsString();
+        } else
+            $info = $ex;
+        error_log($info, 3, $CFG->dataroot . '/wspp_db_errors.log');
+    }
 
 
 /** ajoute un slash au bout d'une url s'il n'y en a pas  et q'url n'est pas vide*/

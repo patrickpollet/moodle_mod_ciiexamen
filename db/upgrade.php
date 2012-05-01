@@ -19,8 +19,10 @@
 
 function xmldb_ciiexamen_upgrade($oldversion=0) {
 
-    global $CFG, $THEME, $db;
+    global $CFG, $THEME, $DB;
 
+    $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
+        
     $result = true;
 
 /// And upgrade begins here. For each one, you'll need one
@@ -51,43 +53,37 @@ function xmldb_ciiexamen_upgrade($oldversion=0) {
     if ($result && $oldversion <  2009071804) {
 
     /// Define field course to be added to ciiexamen
-        $table = new XMLDBTable('ciiexamen');
-        $field = new XMLDBField('synchro_grades');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '1', 'auto_creation');
+        $table = new xmldb_table('ciiexamen');
+        $field = new xmldb_field('synchro_grades');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1', 'auto_creation');
     /// Launch add field course
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 
-   
     }
-    
          if ($result && $oldversion <  2009071812) {
 
     /// Define field course to be added to ciiexamen
-        $table = new XMLDBTable('ciiexamen');
-        $field = new XMLDBField('grade');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', false, XMLDB_NOTNULL, null, null, null, '100', 'synchro_grades');
+        $table = new xmldb_table('ciiexamen');
+        $field = new xmldb_field('grade');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', false, XMLDB_NOTNULL, null, '100', 'synchro_grades');
     /// Launch add field course
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 
-   
     } 
-    
            if ($result && $oldversion <  2009071813) {
 
     /// Define field course to be added to ciiexamen
-        $table = new XMLDBTable('ciiexamen');
-        $field = new XMLDBField('timeopen');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, 0, 'grade');
+        $table = new xmldb_table('ciiexamen');
+        $field = new xmldb_field('timeopen');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0, 'grade');
     /// Launch add field course
-        $result = $result && add_field($table, $field);
-            $field = new XMLDBField('timeclose');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, 0, 'timeopen');
+        $result = $result && $dbman->add_field($table, $field);
+            $field = new xmldb_field('timeclose');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, 0, 'timeopen');
     /// Launch add field course
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 
-   
     } 
-    
 
 /// And that's all. Please, examine and understand the 3 example blocks above. Also
 /// it's interesting to look how other modules are using this script. Remember that

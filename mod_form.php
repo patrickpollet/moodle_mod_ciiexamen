@@ -49,7 +49,7 @@ class mod_ciiexamen_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
       /// Introduction.
-        $this->add_intro_editor(false, get_string('ciiexamenname', 'ciiexamen'));
+        $this->add_intro_editor(false, get_string('ciiexamenintro', 'ciiexamen'));
 
 //-------------------------------------------------------------------------------
     /// Adding the rest of ciiexamen settings, spreeading all them into this fieldset

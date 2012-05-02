@@ -19,7 +19,7 @@ le nom du dossier d'extraction ciiexamen EST OBLIGATOIRE
 
 2) via une archive zip 
 
-Récupérer l'archive ZIP depuis github et la décompresser cette quelque part.
+Récupérer l'archive ZIP depuis github et la décompresser quelque part.
 Copier le dossier obtenu (patrickpollet-moodle_mod_ciiexamen-xxxxxxxxx) dans le dossier mod/ de votre
 installation de Moodle ET RENOMMER le en ciiexamen
 

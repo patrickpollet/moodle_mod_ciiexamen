@@ -158,7 +158,11 @@ function ciiexamen_user_complete($course, $user, $mod, $ciiexamen) {
  */
 function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
     global $DB, $CFG, $COURSE, $USER;
+    
+     require_once (dirname(__FILE__) . '/locallib.php');
 
+     // pp_error_log('appel de '.__FUNCTION__, $activities);
+    
     if ($COURSE->id == $courseid) {
         $course = $COURSE;
     } else {
@@ -243,10 +247,20 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
         $tmpactivity->timestamp = $attempt->date;
 
         $tmpactivity->content = $attempt;
-
-        $tmpactivity->user->userid = $attempt->userid;
+        
+        $userfields = explode(',', user_picture::fields());
+        foreach ($userfields as $userfield) {
+            if ($userfield == 'id') {
+                $tmpactivity->user->{$userfield} = $attempt->userid; // aliased in SQL above
+            } else {
+                $tmpactivity->user->{$userfield} = $user->{$userfield};
+            }
+        }
         $tmpactivity->user->fullname = fullname($user, $viewfullnames);
-        $tmpactivity->user->picture = $user->picture;
+
+        //$tmpactivity->user->userid = $attempt->userid;
+        //$tmpactivity->user->fullname = fullname($user, $viewfullnames);
+        //$tmpactivity->user->picture = $user->picture;
 
         $activities[$index++] = $tmpactivity;
     }
@@ -263,16 +277,20 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
  * affiche comme il faut ce qui a ete retourné par ciiexamen_get_recent_mod_activity
  */
 function ciiexamen_print_recent_mod_activity($activity, $courseid, $detail, $modnames) {
+  
 
     //return false;  //  True if anything was printed, otherwise false
-    global $CFG;
+    global $CFG,$OUTPUT;
+    
+     // pp_error_log('appel de '.__FUNCTION__, $activity);
 
     $strpreview = get_string('voir_details', 'ciiexamen');
 
     echo '<table border="0" cellpadding="3" cellspacing="0" class="forum-recent">';
 
     echo "<tr><td class=\"userpicture\" valign=\"top\">";
-    print_user_picture($activity->user->userid, $courseid, $activity->user->picture);
+    //print_user_picture($activity->user->userid, $courseid, $activity->user->picture);
+    echo $OUTPUT->user_picture($activity->user);
     echo "</td><td>";
 
     if ($detail) {
@@ -286,14 +304,26 @@ function ciiexamen_print_recent_mod_activity($activity, $courseid, $detail, $mod
 
     echo '<div class="grade">';
     echo get_string("passage", "ciiexamen") . " {$activity->content->ip }:{$activity->content->origine } ";
-    echo get_string('score_global', 'ciiexamen') . " : ";
-    link_to_popup_window("/mod/ciiexamen/rapport.php?id={$activity->cmid}&amp;userid={$activity->user->userid}", 'voir_resultats', "<img src=\"$CFG->pixpath/t/preview.gif\" class=\"iconsmall\" alt=\"$strpreview\" />" .
+    echo get_string('score_global', 'ciiexamen') . " : ". $activity->content->score ." ";
+    /**
+    link_to_popup_window("/mod/ciiexamen/rapport.php?id={$activity->cmid}&amp;userid={$activity->user->id}", 'voir_resultats', "<img src=\"$CFG->pixpath/t/preview.gif\" class=\"iconsmall\" alt=\"$strpreview\" />" .
     " <b>" . $activity->content->score . "</b>", 0, 0, $strpreview, CIIEXAMEN_POPUP_OPTIONS, false);
-
+    **/
+    
+     // Build the icon.
+     $image = $OUTPUT->pix_icon('t/preview', $strpreview);
+     $link = new moodle_url('/mod/ciiexamen/rapport.php', array ('id' => $activity->cmid,'userid'=>$activity->user->id));
+     parse_str(CIIEXAMEN_POPUP_OPTIONS, $options);
+     //print_r($options);
+     $action = new popup_action('click', $link, 'questionpreview', $options);
+     echo $OUTPUT->action_link($link, $image, $action, array('title' => $strpreview));
+          
+    
+    
     echo '</div>';
 
     echo '<div class="user">';
-    echo "<a href=\"$CFG->wwwroot/user/view.php?id={$activity->user->userid}&amp;course=$courseid\">" .
+    echo "<a href=\"$CFG->wwwroot/user/view.php?id={$activity->user->id}&amp;course=$courseid\">" .
     "{$activity->user->fullname}</a> - " . userdate($activity->timestamp);
     echo '</div>';
 

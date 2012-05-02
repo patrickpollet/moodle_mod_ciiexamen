@@ -83,6 +83,7 @@ include ('tabs.php');
 switch ($currenttab) {
     case 'info' :
         if (c2i_est_inscrit_examen($USER->username, $ciiexamen->id_examen)) {
+            //print_r($ciiresultats);
             if ($ciiresultats->error) {
                 if ($ciidetails->ts_datedebut <= time() && $ciidetails->ts_datefin >= time()) {
                     //TODO un vrai popup
@@ -104,7 +105,7 @@ switch ($currenttab) {
                 }
             } else
             if ($ciidetails->ts_datedebut >= time() || $ciidetails->ts_datefin <= time())
-            echo ($OUTPUT->heading(get_string('err_examen_pasdispo', 'ciiexamen')));
+                echo ($OUTPUT->heading(get_string('err_examen_pasdispo', 'ciiexamen')));
 
         } else
         echo ($OUTPUT->heading(get_string('err_examen_pasinscrit', 'ciiexamen')));

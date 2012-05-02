@@ -185,7 +185,7 @@ function c2i_est_inscrit_examen($login,$idexamen){
         $lr=$c2i->login($CFG->login_plateforme,$CFG->passe_plateforme);
         $res=$c2i->est_inscrit_examen($lr->getClient(),$lr->getSessionKey(),$login,'login',$idexamen);
         $c2i->logout($lr->getClient(),$lr->getSessionKey());
-       //print_r($res);
+        //print_r($res);
         return $res;
     } catch (Exception $e) {
         debugging($e->getMessage());
@@ -359,9 +359,7 @@ function c2i_get_passages_recents ($idexamen,$timestart) {
         $res=array();
         $c2i=connect_to_plateforme();
         $lr=$c2i->login($CFG->login_plateforme,$CFG->passe_plateforme);
-
             $res=$c2i->get_passages_recents($lr->getClient(),$lr->getSessionKey(),$idexamen,$timestart);
-
         $c2i->logout($lr->getClient(),$lr->getSessionKey());
 
         return  $res;

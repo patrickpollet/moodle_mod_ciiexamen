@@ -1,4 +1,58 @@
-Decompresser cette archive quelque part et copier le dossier ciiexamen dans le dossier mod de Moodle.
-Puis consulter le wiki...
+Ce module Moodle 2.x donne l'accès depuis Moodle 2 à des examens C2I mis en place sur une plateforme C2I.
+Voir http://c2i.education.fr/wikipfc2i-X/index.php/Module_moodle_c2iexamen
+
+
+Installation:
+------------
+La dernière version est toujours ici : https://github.com/patrickpollet/moodle_mod_ciiexamen
+
+1) via git :
+en ligne de commande, aller dans le dossier mod/ de votre installation Moodle 
+
+   cd /var/www/moodle/mod 
+
+puis récuperer par git la dernire version en ligne par 
+
+   git clone git@github.com:patrickpollet/moodle_mod_ciiexamen.git ciiexamen
+
+le nom du dossier d'exraction ciiexamen EST OBLIGATOIRE 
+
+2) via une archive zip 
+
+Récupérer l'archive ZIP depuis github et la decompresser cette archive quelque part.
+Copier le dossier obtenu (patrickpollet-moodle_mod_ciiexamen-287b027) dans le dossier mod/ de votre
+installation de Moodle ET RENOMMER le en ciiexamen
+
+
+Dans les deux cas, visiter le lien Notifications de l'administration de votre site Moodle pour 
+déclencher l'installation de ce nouveau module. 
+
+
+
+Puis consulter le wiki pour parametrer et utiliser ce module.
+
+Enjoy ;-)
+
+
+Mise à jour :
+-----------
+
+1) via git 
+en ligne de commande, aller dans le dossier mod/ciiexamen de votre installation Moodle 
+
+   cd /var/www/moodle/mod/ciiexamen 
+
+puis récuperer par git la dernire version en ligne par 
+
+   git pull origin 
+   
+2) via une archive zip :
+
+    répéter le processus de récupération et de decompression/copie de l'archive 
+    
+DANS LES DEUX CAS : Visiter à nouveau le lien Notifications (au cas ou la nouvelle version a besoin
+de modifier les réglages ou la base de données Moodle).     
+
+PP 02/05/2012
 
 

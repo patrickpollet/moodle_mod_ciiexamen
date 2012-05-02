@@ -3,7 +3,7 @@
  * @author Patrick Pollet
  * @version $Id: locallib.php 417 2010-10-08 16:43:56Z ppollet $
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package c2ipf
+ * @package ciiexamen
  */
 
  /**
@@ -39,7 +39,7 @@ function __connect_to_plateforme_soap() {
     $wsdl=$CFG->adresse_plateforme."ws/wsdl.php";
     $uri=$CFG->adresse_plateforme."ws/wsdl";
 
-    $optionssoap=array('encoding'=>'UTF8');
+    $optionssoap=array('encoding'=>'UTF8'); // important with Moodle 
 //rev 311 ajout parametres optionels proxy définis dans Moodle
     if (!empty($CFG->proxyhost)) $optionssoap['proxy_host' ]=$CFG->proxyhost;
     if (!empty($CFG->proxyport)) $optionssoap['proxy_port' ]=(int) ($CFG->proxyport);
@@ -73,10 +73,13 @@ function __connect_to_plateforme_rest() {
 
 function connect_to_plateforme() {
     global $CFG;
+    /* REST protocol is not supported until C2I plateforme use UTF8 as default 
     if ($CFG->ciiexamen_use_protocol==WS_PROTOCOL_REST)
         return __connect_to_plateforme_rest();
     else
         return __connect_to_plateforme_soap();
+    */
+     return __connect_to_plateforme_soap();    
 }
 
 

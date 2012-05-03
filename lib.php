@@ -269,6 +269,82 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
 }
 
 /**
+ * Prints ciiexamen summaries on MyMoodle Page
+ * Implemented ONLy in version for Moodle 2.x
+ * Strongly inspired from quiz module
+ * @param arry $courses
+ * @param array $htmlarray
+ */
+function ciiexamen_print_overview($courses, &$htmlarray) {
+    global $USER, $CFG;
+    // These next 6 Lines are constant in all modules (just change module name)
+    if (empty($courses) || !is_array($courses) || count($courses) == 0) {
+        return array();
+    }
+
+    if (!$ciiexamens = get_all_instances_in_courses('ciiexamen', $courses)) {
+        return;
+    }
+
+    // Fetch some language strings outside the main loop.
+    $strciiexamen = get_string('modulename', 'ciiexamen');
+   // $strnoattempts = get_string('noattempts', 'ciiexamen');
+
+    // We want to list ciiexamenzes that are currently available, and which have a close date.
+    // This is the same as what the lesson does, and the dabate is in MDL-10568.
+    $now = time();
+    foreach ($ciiexamens as $ciiexamen) {
+        if (0 ||( $ciiexamen->timeclose >= $now && $ciiexamen->timeopen < $now)) {
+            // Give a link to the ciiexamen, and the deadline.
+            $str = '<div class="quiz overview">' .
+                    '<div class="name">' . $strciiexamen . ': <a ' .
+                    ($ciiexamen->visible ? '' : ' class="dimmed"') .
+                    ' href="' . $CFG->wwwroot . '/mod/ciiexamen/view.php?id=' .
+                    $ciiexamen->coursemodule . '">' .
+                    $ciiexamen->name . '</a></div>';
+            $str .= '<div class="info">' . get_string('quizcloseson', 'quiz',
+                    userdate($ciiexamen->timeclose)) . '</div>';
+
+            // Now provide more information depending on the uers's role.
+            /***********************************************************************************
+            $context = get_context_instance(CONTEXT_MODULE, $ciiexamen->coursemodule);
+            if (has_capability('mod/ciiexamen:viewreports', $context)) {
+                // For teacher-like people, show a summary of the number of student attempts.
+                // The $ciiexamen objects returned by get_all_instances_in_course have the necessary $cm
+                // fields set to make the following call work.
+                $str .= '<div class="info">' .
+                        ciiexamen_num_attempt_summary($ciiexamen, $ciiexamen, true) . '</div>';
+            } else if (has_any_capability(array('mod/ciiexamen:reviewmyattempts', 'mod/ciiexamen:attempt'),
+                    $context)) { // Student
+                // For student-like people, tell them how many attempts they have made.
+                if (isset($USER->id) &&
+                        ($attempts = ciiexamen_get_user_attempts($ciiexamen->id, $USER->id))) {
+                    $numattempts = count($attempts);
+                    $str .= '<div class="info">' .
+                            get_string('numattemptsmade', 'ciiexamen', $numattempts) . '</div>';
+                } else {
+                    $str .= '<div class="info">' . $strnoattempts . '</div>';
+                }
+            } else {
+                // For ayone else, there is no point listing this ciiexamen, so stop processing.
+                continue;
+            }
+            ********************************************************************************/
+            // Add the output for this ciiexamen to the rest.
+            $str .= '</div>';
+           
+            if (empty($htmlarray[$ciiexamen->course]['ciiexamen'])) {
+                $htmlarray[$ciiexamen->course]['ciiexamen'] = $str;
+            } else {
+                $htmlarray[$ciiexamen->course]['ciiexamen'] .= $str;
+            }
+        }
+    }
+}
+
+
+
+/**
  * Given a course and a time, this module should find recent activity
  * that has occurred in ciiexamen activities and print it out.
  * Return true if there was output, or false is there was none.
@@ -539,6 +615,7 @@ function ciiexamen_cron() {
  */
 function ciiexamen_get_participants($ciiexamenid) {
     global $DB;
+    require_once (dirname(__FILE__) . '/locallib.php');
 
     // rev 297 (avaait oublié de rechercher l'id national !)
     if (!$ciiexamen = $DB->get_record('ciiexamen', 'id', intval($ciiexamenid)))
@@ -624,6 +701,7 @@ function ciiexamen_uninstall() {
 
 function ciiexamen_grades($ciiexamenid) {
     global $DB;
+    require_once (dirname(__FILE__) . '/locallib.php');
     /// Must return an array of grades, indexed by user, and a max grade.
 
     $ciiexamen = $DB->get_record('ciiexamen', array('id'=> intval($ciiexamenid)));
@@ -666,6 +744,7 @@ function ciiexamen_grades($ciiexamenid) {
  */
 function ciiexamen_get_user_grades($ciiexamen, $userid = 0) {
     global $CFG,$DB;
+    require_once (dirname(__FILE__) . '/locallib.php');
     if (!$userid) {
         $res = c2i_getresultats($ciiexamen->id_examen);
         // print_r($res);

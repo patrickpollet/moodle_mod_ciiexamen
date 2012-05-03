@@ -66,7 +66,7 @@ require_capability('mod/quiz:viewreports', $context);
 
 //accès web service pour récuperer les détails de l'examen '
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen))
-    error(get_string('err_examunknown', 'ciiexamen'));
+    print_error('err_examunknown', 'ciiexamen');
 
 add_to_log($course->id, "ciiexamen", "view", "viewresultats.php?id=$cm->id", "$ciiexamen->id");
 

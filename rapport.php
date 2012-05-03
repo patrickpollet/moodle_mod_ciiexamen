@@ -52,7 +52,7 @@ require_capability('mod/quiz:viewreports', $context);
 
 
 if (!$user = $DB->get_record('user', array('id' => $userid))) {
-    error("No such user in this course");
+     print_error('nousers');
 }
 //accès web service pour récuperer les détails de l'examen '
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen))

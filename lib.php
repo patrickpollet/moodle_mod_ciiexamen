@@ -290,7 +290,7 @@ function ciiexamen_print_overview($courses, &$htmlarray) {
     $strciiexamen = get_string('modulename', 'ciiexamen');
    // $strnoattempts = get_string('noattempts', 'ciiexamen');
 
-    // We want to list ciiexamenzes that are currently available, and which have a close date.
+    // We want to list ciiexamens that are currently available, and which have a close date.
     // This is the same as what the lesson does, and the dabate is in MDL-10568.
     $now = time();
     foreach ($ciiexamens as $ciiexamen) {
@@ -365,15 +365,14 @@ function ciiexamen_print_recent_mod_activity($activity, $courseid, $detail, $mod
     echo '<table border="0" cellpadding="3" cellspacing="0" class="forum-recent">';
 
     echo "<tr><td class=\"userpicture\" valign=\"top\">";
-    //print_user_picture($activity->user->userid, $courseid, $activity->user->picture);
     echo $OUTPUT->user_picture($activity->user);
     echo "</td><td>";
 
     if ($detail) {
         $modname = $modnames[$activity->type];
         echo '<div class="title">';
-        echo "<img src=\"$CFG->modpixpath/{$activity->type}/icon.gif\" " .
-        "class=\"icon\" alt=\"$modname\" />";
+         echo "<img src=\"" . $OUTPUT->pix_url('icon', 'ciiexamen') . "\" ".
+             "class=\"icon\" alt=\"$modname\">";
         echo "<a href=\"$CFG->wwwroot/mod/ciiexamen/view.php?id={$activity->cmid}\">{$activity->name}</a>";
         echo '</div>';
     }
@@ -381,11 +380,7 @@ function ciiexamen_print_recent_mod_activity($activity, $courseid, $detail, $mod
     echo '<div class="grade">';
     echo get_string("passage", "ciiexamen") . " {$activity->content->ip }:{$activity->content->origine } ";
     echo get_string('score_global', 'ciiexamen') . " : ". $activity->content->score ." ";
-    /**
-    link_to_popup_window("/mod/ciiexamen/rapport.php?id={$activity->cmid}&amp;userid={$activity->user->id}", 'voir_resultats', "<img src=\"$CFG->pixpath/t/preview.gif\" class=\"iconsmall\" alt=\"$strpreview\" />" .
-    " <b>" . $activity->content->score . "</b>", 0, 0, $strpreview, CIIEXAMEN_POPUP_OPTIONS, false);
-    **/
-    
+ 
      // Build the icon.
      $image = $OUTPUT->pix_icon('t/preview', $strpreview);
      $link = new moodle_url('/mod/ciiexamen/rapport.php', array ('id' => $activity->cmid,'userid'=>$activity->user->id));
@@ -831,18 +826,19 @@ function ciiexamen_update_grades($ciiexamen = null, $userid = 0, $nullifnone = t
 
     } else {
         $sql = "SELECT a.*, cm.idnumber as cmidnumber, a.course as courseid
-                          FROM {$CFG->prefix}ciiexamen a, {$CFG->prefix}course_modules cm, {$CFG->prefix}modules m
+                          FROM {ciiexamen} a, {course_modules} cm, {modules} m
                          WHERE m.name='ciiexamen' AND m.id=cm.module AND cm.instance=a.id";
-        if ($rs = $DB->get_recordset_sql($sql)) {
-            while ($ciiexamen = rs_fetch_next_record($rs)) {
+         $rs = $DB->get_recordset_sql($sql);
+         if ($rs->valid()) {
+            foreach ($rs as $ciiexamen) {
                 if ($ciiexamen->grade != 0) {
                     ciiexamen_update_grades($ciiexamen, 0, false);
                 } else {
                     ciiexamen_grade_item_update($ciiexamen);
                 }
             }
-            rs_close($rs);
-        }
+         }    
+         $rs->close();
     }
 }
 
@@ -926,15 +922,18 @@ function ciiexamen_grade_item_delete($ciiexamen) {
 function ciiexamen_reset_gradebook($courseid, $type = '') {
     global $CFG, $DB;
 
+    $params = array('courseid'=>$courseid);
+      
     $sql = "SELECT l.*, cm.idnumber as cmidnumber, l.course as courseid
-                  FROM {$CFG->prefix}ciiexamen l, {$CFG->prefix}course_modules cm, {$CFG->prefix}modules m
-                 WHERE m.name='ciiexamen' AND m.id=cm.module AND cm.instance=l.id AND l.course=$courseid";
+                  FROM {ciiexamen} l, {course_modules} cm, {modules} m
+                 WHERE m.name='ciiexamen' AND m.id=cm.module AND cm.instance=l.id AND l.course=:courseid";
 
-    if ($ciiexamens = $DB->get_records_sql($sql)) {
+    if ($ciiexamens = $DB->get_records_sql($sql, $params)) {
         foreach ($ciiexamens as $ciiexamen) {
             ciiexamen_grade_item_update($ciiexamen, 'reset');
         }
     }
+        
 }
 
 /**

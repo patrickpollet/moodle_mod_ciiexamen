@@ -1080,7 +1080,7 @@ function cii_examen_print_description($description) {
     cii_examen_print_item_description($num++, get_string('mdp_examen', 'ciiexamen'), ciiexamen_print_oui_non($num, $description->mot_de_passe));
     cii_examen_print_item_description($num++, get_string('cor_examen', 'ciiexamen'), ciiexamen_print_oui_non($num, $description->correction));
     cii_examen_print_item_description($num++, get_string('mail_examen', 'ciiexamen'), ciiexamen_print_oui_non($num, $description->envoi_resultat));
-    cii_examen_print_item_description($num++, get_string('chrono_examen', 'ciiexamen'), ciiexamen_print_oui_non($num, $description->correction));
+    cii_examen_print_item_description($num++, get_string('chrono_examen', 'ciiexamen'), ciiexamen_print_oui_non($num, $description->affiche_chrono));
     print "</div>";
     print "</fieldset>";
     print "</form>";

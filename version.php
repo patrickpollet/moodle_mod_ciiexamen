@@ -10,8 +10,8 @@
  */
 
 //$module->version  = 2009071813;  // The current module version (Date: YYYYMMDDXX)
-//bumped for new settings
-$module->version  = 2012050100;
+//bumped for new capabilities (addinstance...) required in Moodle 2.3
+$module->version  = 2012090100;
 $module->requires  = 2011112900;        // Requires this Moodle version (Moodle 2.0 ) 
 $module->cron     = 1;           // Period for cron to check this module (secs)
 

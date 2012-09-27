@@ -42,7 +42,7 @@ $capabilities = array(
 
     'mod/ciiexamen:edit' => array(
 
-        'riskbitmask' => RISK_XSS, // we want flash and JS in question pages
+        'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

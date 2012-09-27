@@ -8,6 +8,10 @@ $string['modulenameplural'] = 'Examens C2i';
 $string['pluginname'] = 'Examen C2i';
 $string['pluginadministration'] = 'Administration de l\'examen C2I';
 
+// new Moodle 2.3
+ $string['ciiexamen:addinstance']='Ajouter un examen C2i';
+ $string['ciiexamen:edit']='Modifier des examen C2i';
+ $string['ciiexamen:manage']='Gérer les examens C2i';
 
 //$string['ciiexamenfieldset'] = 'Custom example fieldset';
 $string['ciiexamenintro'] = 'Description de l\'examen';$string['ciiexamenname'] = 'Nom de l\'examen';

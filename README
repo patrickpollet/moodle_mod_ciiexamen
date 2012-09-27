@@ -7,15 +7,20 @@ Installation:
 La dernière version est toujours ici : https://github.com/patrickpollet/moodle_mod_ciiexamen
 
 1) via git :
-en ligne de commande, aller dans le dossier mod/ de votre installation Moodle 
 
-   cd /var/www/moodle/mod 
+en ligne de commande, aller dans le dossier principal de votre installation Moodle 
+
+   cd /var/www/moodle
 
 puis récuperer par git la dernière version en ligne par 
 
-   git clone git@github.com:patrickpollet/moodle_mod_ciiexamen.git ciiexamen
+   git clone git@github.com:patrickpollet/moodle_mod_ciiexamen.git mod/ciiexamen
 
-le nom du dossier d'extraction ciiexamen EST OBLIGATOIRE 
+le nom du dossier d'extraction mod/ciiexamen EST OBLIGATOIRE 
+
+si votre instance de moodle est aussi sous git, exclure mod/ciiexamen de son status 
+
+   echo 'mod/ciiexamen' >> .git/info/exclude 
 
 2) via une archive zip 
 

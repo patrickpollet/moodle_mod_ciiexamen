@@ -13,6 +13,10 @@
 //bumped for new capabilities (addinstance...) required in Moodle 2.3
 $module->version  = 2012090100;
 $module->requires  = 2011112900;        // Requires this Moodle version (Moodle 2.0 ) 
-$module->cron     = 1;           // Period for cron to check this module (secs)
+$module->component = 'mod_ciiexamen';       // Full name of the plugin (used for diagnostics)
+$module->cron     = 60;           // Period for cron to check this module (secs)
+$module->maturity = MATURITY_STABLE; // required for registering to Moodle's database of plugins 
+$module->release = '2.3 (Build 20121001)';  // required for registering to Moodle's database of plugins
+
 
 ?>

@@ -43,7 +43,7 @@ if (has_capability('mod/quiz:view', $context)) {
 }
 if (has_capability('mod/quiz:viewreports', $context)) {
 	if (!$tabcor)  //pas deux fois
-      if ($ciidetails->type_tirage!='passage')
+      if ($ciidetails->correction && $ciidetails->type_tirage!='passage')
 		$row[] = new tabobject('corrige', "$CFG->wwwroot/mod/ciiexamen/view.php?id=$cm->id&ct=corrige", get_string('corrige_examen', 'ciiexamen'));
 
      // if ($ciidetails->type_tirage!='passage')

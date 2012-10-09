@@ -305,31 +305,6 @@ function ciiexamen_print_overview($courses, &$htmlarray) {
             $str .= '<div class="info">' . get_string('quizcloseson', 'quiz',
                     userdate($ciiexamen->timeclose)) . '</div>';
 
-            // Now provide more information depending on the uers's role.
-            /***********************************************************************************
-            $context = get_context_instance(CONTEXT_MODULE, $ciiexamen->coursemodule);
-            if (has_capability('mod/ciiexamen:viewreports', $context)) {
-                // For teacher-like people, show a summary of the number of student attempts.
-                // The $ciiexamen objects returned by get_all_instances_in_course have the necessary $cm
-                // fields set to make the following call work.
-                $str .= '<div class="info">' .
-                        ciiexamen_num_attempt_summary($ciiexamen, $ciiexamen, true) . '</div>';
-            } else if (has_any_capability(array('mod/ciiexamen:reviewmyattempts', 'mod/ciiexamen:attempt'),
-                    $context)) { // Student
-                // For student-like people, tell them how many attempts they have made.
-                if (isset($USER->id) &&
-                        ($attempts = ciiexamen_get_user_attempts($ciiexamen->id, $USER->id))) {
-                    $numattempts = count($attempts);
-                    $str .= '<div class="info">' .
-                            get_string('numattemptsmade', 'ciiexamen', $numattempts) . '</div>';
-                } else {
-                    $str .= '<div class="info">' . $strnoattempts . '</div>';
-                }
-            } else {
-                // For ayone else, there is no point listing this ciiexamen, so stop processing.
-                continue;
-            }
-            ********************************************************************************/
             // Add the output for this ciiexamen to the rest.
             $str .= '</div>';
            

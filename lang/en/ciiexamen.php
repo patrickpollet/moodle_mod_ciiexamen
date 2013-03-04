@@ -8,14 +8,29 @@ $string['modulenameplural'] = 'Examens C2i';
 $string['pluginname'] = 'Examen C2i';
 $string['pluginadministration'] = 'Administration de l\'examen C2I';
 
+//aide pour le selecteur d'activité
+$string['modulename_help'] = <<<EOS
+Cette activité, qu'il faut installer par la méthode standard sous Moodle permettra d'afficher sous Moodle les informations, résultats ... d'un examen de positionnement associé, créé et passé sur la plate-forme C2i.
+La plate-forme devient alors 'un simple moteur' de QCM sur laquelle les candidats n'auront besoin de se connecter que pour le passage de l'examen.
+Ensuite toutes les informations seront directement consultables sous Moodle.
+Ses avantages sont multiples :
+il va permettre de créer automatiquement sur la plate-forme les comptes des candidats (si nécessaire), à partir des informations extraites de la base de données Moodle, et de les inscrire à l'examen auquel il est associé. Tout nouvel étudiant qui sera inscrit au cours Moodle contenant cette activité se verra automatiquement synchronisé avec la plate-forme (même identifiants, nom, prénom, adresse email et éventuel numéro d'étudiant) .
+Dans le cas d'un compte Moodle 'manuel', le mot de passe associé, encodé en md5, sera envoyé à la plate-forme et devrait donc être le même pour le passage du QCM. Dans un environnement utilisant un annuaire LDAP ou le protocole SSO CAS, le passage entre Moodle et la plate-forme pour le passage de l'examen sera entierement transparent.
+Dans le cas ou cette activité est associée à un groupement Moodle, seuls les étudiants inscrits à ce groupement seront concernés par l'inscription automatique à la plate-forme. Cela permet d'éviter des inscriptions parasites ou d'avoir un examen de positionnement différent par groupe d'étudiants.
+un 'étudiant' du cours Moodle pourra revoir ses scores, un éventuel corrigé et son parcours tels qu'ils ont été créés lors de son passage de l'examen sur la plate-forme ; ce qui n'est pas possible avec la plate-forme officielle, puisqu'il n'a plus accès à l'examen après l'avoir passé.
+un 'enseignant' du cours Moodle pourra consulter le corrigé de l'examen et les résultats de ses étudiants sans qu'il soit nécessaire de lui créer un compte sur la plate-forme.
+les résultats obtenus aux tests passés sur la plate-forme seront automatiquement ajoutés au carnet de notes centralisé de Moodle.
+
+EOS;
+
 // new Moodle 2.3
  $string['ciiexamen:addinstance']='Ajouter un examen C2i';
  $string['ciiexamen:edit']='Modifier des examen C2i';
  $string['ciiexamen:manage']='Gérer les examens C2i';
 
-
 //$string['ciiexamenfieldset'] = 'Custom example fieldset';
-$string['ciiexamenintro'] = 'Description de l\'examen';$string['ciiexamenname'] = 'Nom de l\'examen';
+$string['ciiexamenintro'] = 'Description de l\'examen';
+$string['ciiexamenname'] = 'Nom de l\'examen';
 $string['adresse_plateforme']='Adresse Internet de la plate-forme';
 $string['configadresse_plateforme']='Adresse Internet de la plate-forme (valeur requise)';
 $string['login_plateforme']='Login sur la plate-forme';
@@ -29,7 +44,8 @@ $string['config_inclure_certification']='Par défaut vous ne pouvez obtenir de l
         'En cochant cette case vous pourrez aussi traiter les examens de certification';
 
 $string['ciiexamen_use_protocol']='Protocole de communication';
-$string['configciiexamen_use_protocol']='Vous pouvez communiquer avec la plate-forme en utilisant le protocole SOAP (plus sécurisé) ou REST (plus rapide)';
+$string['configciiexamen_use_protocol']='Vous pouvez communiquer avec la plate-forme en utilisant le protocole SOAP (plus sécurisé) ou REST (plus rapide).' .
+        'Dans le premier cas vous devez avoir installé php_soap et dans le second php_curl';
 
 $string['id_examen_pf']='Identité de cet examen sur votre plate-forme';
 $string['type_examen']='Type d\'examen';

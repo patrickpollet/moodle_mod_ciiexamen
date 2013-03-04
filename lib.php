@@ -1074,7 +1074,7 @@ function ciiexamen_supports($feature) {
         case FEATURE_GROUPMEMBERSONLY:        return true;
         case FEATURE_MOD_INTRO:               return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_COMPLETION_HAS_RULES:    return true;
+        case FEATURE_COMPLETION_HAS_RULES:    return null;  //NO CUSTOM COMPLETIONS RULES
         case FEATURE_GRADE_HAS_GRADE:         return true;
         case FEATURE_GRADE_OUTCOMES:          return true;
         case FEATURE_BACKUP_MOODLE2:          return true;

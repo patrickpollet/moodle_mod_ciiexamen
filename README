@@ -14,7 +14,7 @@ en ligne de commande, aller dans le dossier principal de votre installation Mood
 
 puis récuperer par git la dernière version en ligne par 
 
-   git clone git@github.com:patrickpollet/moodle_mod_ciiexamen.git mod/ciiexamen
+   git clone https://github.com/patrickpollet/moodle_mod_ciiexamen.git mod/ciiexamen
 
 le nom du dossier d'extraction mod/ciiexamen EST OBLIGATOIRE 
 

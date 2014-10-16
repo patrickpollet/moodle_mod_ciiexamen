@@ -473,7 +473,8 @@ function ciiexamen_cron() {
 
              */
 
-            if ($context = get_context_instance(CONTEXT_COURSE, $instance->course)) {
+           // if ($context = get_context_instance(CONTEXT_COURSE, $instance->course)) {
+           if ( $context =  context_course::instance($instance->course)) {
                 //print_r($instance);
                 /// Get all existing participants in this context.
                 // Why is this not done with get_users???
@@ -960,8 +961,13 @@ function ciiexamen_after_add_or_update($ciiexamen) {
                 $event->timeduration = $ciiexamen->timeclose - $ciiexamen->timeopen;
             else
                 $event->timeduration = 0;
-
-            update_event($event);
+            
+            // deprecated since Moodle 2.6
+            //update_event($event);
+            //$event = (object)$event;
+            require_once($CFG->dirroot.'/calendar/lib.php');
+            $calendarevent = calendar_event::load($event->id);
+            $calendarevent->update($event);
         } else {
             $event = new StdClass();
             $event->name = $ciiexamen->name;
@@ -976,7 +982,9 @@ function ciiexamen_after_add_or_update($ciiexamen) {
             if ($ciiexamen->timeclose)
                 $event->timeduration = $ciiexamen->timeclose - $ciiexamen->timeopen;
 
-            add_event($event);
+            // deprecated since Moodle 2.6
+            //add_event($event);
+            calendar_event::create($event);
         }
     } else {
         $DB->delete_records('event', array('modulename'=>'ciiexamen', 'instance'=> $ciiexamen->id));

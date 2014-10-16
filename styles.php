@@ -316,7 +316,7 @@ ul class="reponses"
 li class="reponse"
 input type=checbox class=case
 span class bonne
-<span class=mauvaise
+span class=mauvaise
 */
 
 table.qcm {

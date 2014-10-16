@@ -61,7 +61,8 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_capability('mod/quiz:viewreports', $context);
 
 //accès web service pour récuperer les détails de l'examen '
@@ -405,11 +406,11 @@ if ($download) {
 
         $user = $r->user;
         if (!isset ($user->context)) {
-            $usercontext = get_context_instance(CONTEXT_USER, $user->id);
+            //$usercontext = get_context_instance(CONTEXT_USER, $user->id);
+        	$usercontext =  context_user::instance($user->id);
         } else {
             $usercontext = $user->context;
         }
-
         if ($piclink = ($USER->id == $user->id || has_capability('moodle/user:viewdetails', $context) || has_capability('moodle/user:viewdetails', $usercontext))) {
             $profilelink = '<strong><a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&amp;course=' . $course->id . '">' . fullname($user) . '</a></strong>';
         } else {

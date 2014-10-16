@@ -46,6 +46,7 @@ function __connect_to_plateforme_soap() {
     if (!empty($CFG->proxyuser)) $optionssoap['proxy_login' ]=$CFG->proxyuser;
     if (!empty($CFG->proxypassword)) $optionssoap['proxy_password' ]=$CFG->proxypassword;
 
+    
     $c2i=new c2i_soapserver($wsdl,$uri,$optionssoap); //important
     return $c2i;
 }
@@ -122,10 +123,10 @@ function c2i_getexamens($typep='positionnement') {
 		//$res=$c2i->get_examens($lr->getClient(),$lr->getSessionKey(),$typep);
 
 		$res=$c2i->get_examens($lr->getClient(),$lr->getSessionKey(),'positionnement',0); // rev 979
-		        	ws_error_log(print_r($res,true));
+		//ws_error_log(print_r($res,true));
 		if ($CFG->inclure_certification) {
     	       	$res2=$c2i->get_examens($lr->getClient(),$lr->getSessionKey(),'certification',0); // rev 979
-    	      	ws_error_log(print_r($res2,true));
+    	      	//ws_error_log(print_r($res2,true));
     	       	$res=array_merge($res,$res2);
 		}
 		$c2i->logout($lr->getClient(),$lr->getSessionKey());

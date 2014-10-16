@@ -496,8 +496,21 @@ function filtre_donnees(& $res, $context, $cm, $currentgroup) {
        // if (is_array($r)) $r=(object)$r; // REST mode
         if (!empty($r->error) || empty ($r->login))
             continue;
-
-        if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0), 'id,username,lastname,firstname,picture,idnumber,imagealt,email')) {
+        /*
+         in Moodle 2.6 we must fetch all fields of table mdl_user since the renderers for fullname() and user_picture
+         now check for required fields ; otherwise we get in debug developper mode errors like these for each user
+         
+         	You need to update your sql to include additional name fields in the user object.
+			line 3570 of /lib/moodlelib.php: call to debugging()
+			line 415 of /mod/ciiexamen/viewresultats.php: call to fullname()
+			
+			Missing firstnamephonetic property in $user object, this is a performance problem that needs to be fixed by a developer. Please use user_picture::fields() to get the full list of required fields.
+			line 196 of /lib/outputcomponents.php: call to debugging()
+			line 2254 of /lib/outputrenderers.php: call to user_picture->__construct()
+			line 421 of /mod/ciiexamen/viewresultats.php: call to core_renderer->user_picture()
+        */ 
+        //if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0), 'id,username,lastname,firstname,picture,idnumber,imagealt,email')) {
+        if ($user = $DB->get_record('user', array('username'=>$r->login, 'deleted'=> 0), '*')) {
 
             //virer les non inscrits au cours
             if (!has_capability('mod/quiz:view', $context, $user->id)) {

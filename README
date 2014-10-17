@@ -20,11 +20,51 @@ le nom du dossier d'extraction mod/ciiexamen EST OBLIGATOIRE
 
 si votre instance de moodle est aussi sous git, exclure mod/ciiexamen de son status 
 
-   echo 'mod/ciiexamen' >> .git/info/exclude 
+   echo 'mod/ciiexamen' >> .git/info/exclude
+   
+selon votre version de Moodle vous allez devoir utiliser une des branches disponibles :
+
+   si votre Moodle est <=2.6 il vousfaut utiliser la branche distante MOODLE_26 comme suit :
+   
+  cd mod/ciiexamen      # aller dans le dossier d'installation
+  git status            # vérif ier l'installation 
+# On branch master      # réponse attendue
+nothing to commit (working directory clean)
+
+   git branch --track MOODLE_26 origin/MOODLE_26  # se créer une branche locale synchro avec la MOODLE_26 distante 
+set up to track remote branch MOODLE_26 from origin.  #réponse attendue
+  git checkout MOODLE_26                           #basculer vers cette branche
+Switched to branch 'MOODLE_26'                     #réponse attendue
+
+   à des fins de vérifications, vous pouvez consulter le fichier version.php qui contient :
+   
+$module->version  = 2012090100;
+$module->requires  = 2011112900;        // Requires this Moodle version (Moodle 2.0 ) 
+$module->component = 'mod_ciiexamen';       // Full name of the plugin (used for diagnostics)
+$module->cron     = 60;           // Period for cron to check this module (secs)
+$module->maturity = MATURITY_STABLE; // required for registering to Moodle's database of plugins 
+$module->release = '2.3 (Build 20121001)';  // required for registering to Moodle's database of plugins
+
+   
+   si votre Moodle est >= 2.7, vous devez utiliser la branche master ; il n'y a donc rien de plus à faire
+   
+   à des fins de vérification vous pouvez consulter le fichier version.php qui contient alors :
+   
+$module->version  = 2014101701;
+$module->requires  = 2014051200; // Moodle 2.7.0 is required. (no more add_to_log)
+$module->component = 'mod_ciiexamen';       // Full name of the plugin (used for diagnostics)
+$module->cron     = 60;           // Period for cron to check this module (secs)
+$module->maturity = MATURITY_STABLE; // required for registering to Moodle's database of plugins 
+$module->release = '2.7 (Build 20141017)';  // required for registering to Moodle's database of plugins
+
+= 2.7,
 
 2) via une archive zip 
 
 Récupérer l'archive ZIP depuis github et la décompresser quelque part.
+  - avec un Moodle >= 2.7 télécharger l'archive depuis la branche maaster
+  _ avec un Moodle <=2.6 , basculer d'abord vers la branche MOODLE_26 avant de télécharger l'archive
+
 Copier le dossier obtenu (patrickpollet-moodle_mod_ciiexamen-xxxxxxxxx) dans le dossier mod/ de votre
 installation de Moodle ET RENOMMER le en ciiexamen
 

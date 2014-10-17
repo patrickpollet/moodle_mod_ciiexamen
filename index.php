@@ -22,7 +22,8 @@ if (!$course = $DB->get_record('course', array('id'=>$id))) {
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_url('/mod/ciiexamen/index.php', array('id'=>$id));
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+//$context = get_context_instance(CONTEXT_COURSE, $course->id);
+$context =  context_course::instance($course->id);
 
 add_to_log($course->id, 'ciiexamen', 'view all', "index.php?id=$course->id", "");
 
@@ -50,7 +51,8 @@ if (! $ciiexamens = get_all_instances_in_course('ciiexamen', $course)) {
 
 $usesections = course_format_uses_sections($course->format);
 if ($usesections) {
-    $sections = get_all_sections($course->id);
+    // $sections = get_all_sections($course->id); deprecated Moodle 2.6
+    $sections =  get_fast_modinfo($course->id)->get_section_info_all();
 }
 
 /// Print the list of instances (your module will probably extend this)
@@ -58,7 +60,7 @@ if ($usesections) {
 $timenow = time();
 $strsectionname  = get_string('sectionname', 'format_'.$course->format);
 $strname  = get_string("name");
-$strentries  = get_string("entries", "ciiexamen");
+$strentries  = get_string("inscrits", "ciiexamen");
 
 $table = new html_table();
 
@@ -100,7 +102,12 @@ foreach ($ciiexamens as $ciiexamen) {
     // TODO: count only approved if not allowed to see them
 
     //$count = $DB->count_records_sql("SELECT COUNT(*) FROM {glossary_entries} WHERE (glossaryid = ? OR sourceglossaryid = ?)", array($glossary->id, $glossary->id));
-    $count=0;
+   // $count=0;
+   if ($inscrits= c2i_getinscrits($ciiexamen->id_examen)) {
+   		$count = count($inscrits);
+   }else {
+   		$count = 0;
+   }
 
 
     if ($usesections) {

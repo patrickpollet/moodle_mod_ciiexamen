@@ -99,6 +99,7 @@ $string['chrono_examen']='Afficher le temps restant';
 $string['seuil_examen']='Seuil de validation';
 $string['nbq_examen']='Nombre de questions';
 $string['doms_examen']='Domaines traités';
+$string['inscrits'] = 'inscrits';
 //corrige
 $string['voir_details']='Voir le détail';
 $string['corrige_examen_pour']='Corrigé de l\'examen pour {$a}';

@@ -114,7 +114,7 @@ switch ($currenttab) {
         break;
     case 'corrige' :
         if ($ciidetails->correction)
-            if (!$ciiresultats->error)
+        	if (is_object($ciiresultats) && !$ciiresultats->error)
                 print (c2i_getcorrige_examen_html($USER->username, $ciiexamen->id_examen));
             else
                 if (has_capability('mod/quiz:viewreports', $context))

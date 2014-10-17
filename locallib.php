@@ -209,7 +209,7 @@ function c2i_getscores($login,$idexamen) {
 		return $res[0]; // on extrait le seul element du tableau
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -226,7 +226,7 @@ function c2i_getinscrits($idexamen) {
 		return $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -245,7 +245,7 @@ function c2i_getcorrige_examen_html($login,$idexamen) {
 		return $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -263,7 +263,7 @@ function c2i_getresultats_examen_html($login,$idexamen) {
 		return  $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -282,7 +282,7 @@ function c2i_getparcours_examen_html($login,$idexamen) {
 		return  $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -303,7 +303,7 @@ function c2i_getresultats($idexamen) {
 		return  $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 }
@@ -325,7 +325,7 @@ function c2i_creecandidats($candidats) {
 		return  $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 
@@ -345,7 +345,7 @@ function c2i_inscritcandidats($candidats,$idexamen) {
 		return  $res;
 	} catch (Exception $e) {
 		debugging($e->getMessage());
-		print($e->getMessage());
+		//print($e->getMessage());
 		return false;
 	}
 }
@@ -366,7 +366,7 @@ function c2i_get_passages_recents ($idexamen,$timestart) {
         return  $res;
     } catch (Exception $e) {
         debugging($e->getMessage());
-        print($e->getMessage());
+        //print($e->getMessage());
         return false;
     }
 

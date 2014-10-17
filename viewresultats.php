@@ -69,7 +69,8 @@ require_capability('mod/quiz:viewreports', $context);
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen))
     print_error('err_examunknown', 'ciiexamen');
 
-add_to_log($course->id, "ciiexamen", "view", "viewresultats.php?id=$cm->id", "$ciiexamen->id");
+// DEPRECATED TODO
+//add_to_log($course->id, "ciiexamen", "view", "viewresultats.php?id=$cm->id", "$ciiexamen->id");
 
 $groupmode = groups_get_activity_groupmode($cm);
 if ($groupmode)

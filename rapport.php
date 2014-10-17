@@ -47,7 +47,8 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+//$context = get_context_instance(CONTEXT_MODULE, $cm->id);
+$context = context_module::instance($cm->id);
 require_capability('mod/quiz:viewreports', $context);
 
 
@@ -58,7 +59,8 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen))
 print_error('err_examunknown', 'ciiexamen');
 
-add_to_log($course->id, "ciiexamen", "view", "rapport.php?id=$cm->id", "$ciiexamen->id");
+//DEPRECATED TO DO
+//add_to_log($course->id, "ciiexamen", "view", "rapport.php?id=$cm->id", "$ciiexamen->id");
 
 $ciiresultats = c2i_getscores($user->username, $ciiexamen->id_examen);
 

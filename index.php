@@ -22,7 +22,8 @@ if (!$course = $DB->get_record('course', array('id'=>$id))) {
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_url('/mod/ciiexamen/index.php', array('id'=>$id));
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+//$context = get_context_instance(CONTEXT_COURSE, $course->id);
+$context =  context_course::instance($course->id);
 
 add_to_log($course->id, 'ciiexamen', 'view all', "index.php?id=$course->id", "");
 

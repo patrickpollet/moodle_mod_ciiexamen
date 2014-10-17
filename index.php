@@ -24,8 +24,13 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_url('/mod/ciiexamen/index.php', array('id'=>$id));
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 
-add_to_log($course->id, 'ciiexamen', 'view all', "index.php?id=$course->id", "");
-
+//deprecated
+//add_to_log($course->id, 'ciiexamen', 'view all', "index.php?id=$course->id", "");
+//code from mod/page/index.php
+// Trigger instances list viewed event.
+$event = \mod_ciiexamen\event\course_module_instance_list_viewed::create(array('context' => $context));
+$event->add_record_snapshot('course', $course);
+$event->trigger();
 
 /// Get all required stringsciiexamen
 

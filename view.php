@@ -49,7 +49,18 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/quiz:view', $context);
 
-add_to_log($course->id, "ciiexamen", "view", "view.php?id={$cm->id}", $ciiexamen->id, $cm->id);
+//deprecated 
+//add_to_log($course->id, "ciiexamen", "view", "view.php?id={$cm->id}", $ciiexamen->id, $cm->id);
+//new code from mod/page/view.php
+$eventdata = array();
+$eventdata['objectid'] = $ciiexamen->id;
+$eventdata['context'] = $context;
+
+$event = \mod_ciiexamen\event\course_module_viewed::create($eventdata);
+$event->add_record_snapshot('course_modules', $cm);
+$event->add_record_snapshot('course', $course);
+$event->trigger();
+
 
 //accès web service pour récuperer les détails de l'examen '
 if (!$ciidetails = c2i_getexamen($ciiexamen->id_examen)) {

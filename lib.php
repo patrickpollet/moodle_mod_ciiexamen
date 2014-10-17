@@ -192,7 +192,8 @@ function ciiexamen_get_recent_mod_activity(& $activities, & $index, $timestart, 
     if (!$attempts)
         return;
 
-    $cm_context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    //$cm_context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    $cm_context = context_module::instance($cm->id);
     $grader = has_capability('moodle/grade:viewall', $cm_context);
     $accessallgroups = has_capability('moodle/site:accessallgroups', $cm_context);
     $viewfullnames = has_capability('moodle/site:viewfullnames', $cm_context);

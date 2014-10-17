@@ -949,7 +949,10 @@ function ciiexamen_after_add_or_update($ciiexamen) {
     global $CFG, $DB;
 
     //calendrier
+    
     if ($ciiexamen->timeopen) {
+    	//required since Moodle 2.6
+    	require_once($CFG->dirroot.'/calendar/lib.php');
         $event = new stdClass();
 
         if ($event->id = $DB->get_field('event', 'id', array('modulename'=>'ciiexamen', 'instance'=> $ciiexamen->id))) {
@@ -965,7 +968,7 @@ function ciiexamen_after_add_or_update($ciiexamen) {
             // deprecated since Moodle 2.6
             //update_event($event);
             //$event = (object)$event;
-            require_once($CFG->dirroot.'/calendar/lib.php');
+           
             $calendarevent = calendar_event::load($event->id);
             $calendarevent->update($event);
         } else {

@@ -521,7 +521,7 @@ function ciiexamen_cron() {
                         $user->idnumber = $user->username;
                     $send->setNumetudiant($user->idnumber);
                     $send->setPasswordmd5($user->password); // rev 948 PF C2I
-
+                    if ($user->auth=='nologin') continue; // rev novembre 2014
                     if ($user->auth == 'cas' || $user->auth == 'ldap')
                         $send->setAuth('ldap');
                     else
